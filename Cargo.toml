@@ -7,6 +7,6 @@ edition = "2021"
 
 [dependencies]
 rand = "0.8.5"
-rsa = { version = "0.8.2", features = ["serde", "pem"] }
 aes-gcm = { version = "0.10.1", features = ["aes"]}
-pkcs8 = { version = "0.10.2", features = ["encryption", "pem"]}
+rsa = { version = "0.8.2", features = ["serde", "pem"] }
+pkcs8 = { version = "0.9", features = ["encryption", "pem"]}
