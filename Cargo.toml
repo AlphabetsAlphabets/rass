@@ -1,6 +1,6 @@
 [package]
 name = "srsa"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 
 description = "A simple backend for creating and using RSA key pairs. Intended for personal use."
