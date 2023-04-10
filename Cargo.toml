@@ -9,4 +9,4 @@ edition = "2021"
 rand = "0.8.5"
 aes-gcm = { version = "0.10.1", features = ["aes"]}
 rsa = { version = "0.8.2", features = ["serde", "pem"] }
-pkcs8 = { version = "0.9", features = ["encryption", "pem"]}
+pkcs8 = { version = "0.9", features = ["encryption", "pem", "std"]}
