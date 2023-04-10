@@ -1,4 +1,4 @@
 # Roadmap
-1. Support for asymmetric encryption.
-1. Support for symmetric encryption.
-2. Generate a random password for new services.
+- [x] Support for asymmetric encryption.
+- Generate a random password for new services.
+- [ ] Create a sort of dashboard command that can use the services of rass without the command line.
