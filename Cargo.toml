@@ -1,19 +1,14 @@
 [package]
-name = "rass"
+name = "srsa"
 version = "0.1.0"
 edition = "2021"
 
-[lib]
-name = "keys"
-path = "src/keys/lib.rs"
+description = "A simple backend for creating and using RSA key pairs."
+readme = "README.md"
+license = "MIT"
+license-file = "LICENSE"
 
-[[bin]]
-name = "rassfi"
-path = "src/rassfi/main.rs"
-
-[[bin]]
-name = "rassdroid"
-path = "src/rassdroid/main.rs"
+keywords = ["RSA", "crypto"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
