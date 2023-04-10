@@ -6,8 +6,8 @@ edition = "2021"
 description = "A simple backend for creating and using RSA key pairs. Intended for personal use."
 readme = "README.md"
 license = "MIT"
-license-file = "LICENSE"
 
+repository = "https://github.com/AlphabetsAlphabets/srsa"
 keywords = ["RSA", "crypto"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

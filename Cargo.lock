@@ -345,15 +345,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rass"
-version = "0.1.0"
-dependencies = [
- "pkcs8",
- "rand",
- "rsa",
-]
-
-[[package]]
 name = "rsa"
 version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -456,6 +447,15 @@ checksum = "67cf02bbac7a337dc36e4f5a693db6c21e7863f45070f7064577eb4367a3212b"
 dependencies = [
  "base64ct",
  "der",
+]
+
+[[package]]
+name = "srsa"
+version = "0.1.0"
+dependencies = [
+ "pkcs8",
+ "rand",
+ "rsa",
 ]
 
 [[package]]
