@@ -1,3 +1,24 @@
+//! A crate that uses the already well established [rsa](https://docs.rs/rsa/0.8.2/rsa/) and 
+//! [pkcs8](https://docs.rs/pkcs8/0.10.2/pkcs8/) crates to provide a simple plug
+//! and play experience.
+//!
+//! # Usage
+//! ## Saving key pairs
+//! ```
+//! // The values passed in will be the file names of the private and public keys.
+//! let keys = Keys::new("priv", "pub");
+//! // Saves the key pairs to a folder in the cwd called keys and encrypts the private key with a
+//! // password
+//! keys.write_to_disk("password", "keys");
+//! ```
+//!
+//! ## Using an existing key pair
+//! ```
+//! let keys = Keys::retrieve_keys("keys/priv", "password", "keys/pub")?;
+//! let ciphertext = keys.seal(b"hi")?;
+//! let plaintext = keys.unseal(ciphertext)?;
+//! ```
+
 use std::fs;
 use std::io;
 
