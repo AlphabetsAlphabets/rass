@@ -34,9 +34,11 @@ impl<'names> Keys<'names> {
         }
     }
 
+    /// Will read the PEM encoded keys and return `Self`.
     /// # Parameters
-    /// `priv_key` - Path to private key file.
-    /// `pub_key` - Path to public key file.
+    /// - `priv_key`: Path to private key file.
+    /// - `password`: The password used to encrypt the private key.
+    /// - `pub_key`: Path to public key file.
     pub fn retreive_keys(priv_key_path: &'names str, password: &str, pub_key_path: &'names str) -> Self {
         let enc_priv_key = Path::new(priv_key_path);
 
