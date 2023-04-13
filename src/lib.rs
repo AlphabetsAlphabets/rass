@@ -1,4 +1,4 @@
-//! A crate that uses the already well established [rsa](https://docs.rs/rsa/0.8.2/rsa/) and 
+//! A crate that uses the already well established [rsa](https://docs.rs/rsa/0.8.2/rsa/) and
 //! [pkcs8](https://docs.rs/pkcs8/0.10.2/pkcs8/) crates to provide a simple plug
 //! and play experience.
 //!
@@ -20,13 +20,12 @@
 //! ```
 
 use std::fs;
-use std::io;
 
-mod tests;
+mod errors;
 
+use errors::KeyError;
 use pkcs8::{DecodePrivateKey, DecodePublicKey, EncodePrivateKey, EncodePublicKey, LineEnding};
 use rsa::{errors::Result as RsaResult, Pkcs1v15Encrypt, PublicKey, RsaPrivateKey, RsaPublicKey};
-
 
 /// Contains the key pairs and their names. This struct is to use the key pairs and to retrieve
 /// them. It can also be used to create new key pairs.
@@ -66,19 +65,17 @@ impl<'names> Keys<'names> {
         priv_key_path: &'names str,
         password: &str,
         pub_key_path: &'names str,
-    ) -> Result<Self, io::Error> {
+    ) -> Result<Self, KeyError> {
         // Get *encrypted* private key first
         let mut pem = fs::read_to_string(priv_key_path)?;
 
         // Decrypt encrypted private key
-        let priv_key = RsaPrivateKey::from_pkcs8_encrypted_pem(&pem, password)
-            .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
+        let priv_key = RsaPrivateKey::from_pkcs8_encrypted_pem(&pem, password)?;
         pem.clear();
 
         // Then get public key
         pem = fs::read_to_string(pub_key_path)?;
-        let pub_key = RsaPublicKey::from_public_key_pem(&pem)
-            .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
+        let pub_key = RsaPublicKey::from_public_key_pem(&pem)?;
 
         Ok(Self {
             priv_key,
@@ -95,18 +92,16 @@ impl Keys<'_> {
     /// # Parameters
     /// - `priv_key_pass`: The password used to encrypt the private key.
     /// - `folder`: The folder to write the keys to. If left empty will default to cwd.
-    pub fn write_to_disk(&self, priv_key_pass: &str, folder: &str) -> Result<(), io::Error> {
+    pub fn write_to_disk(&self, priv_key_pass: &str, folder: &str) -> Result<(), KeyError> {
         let folder = if folder.is_empty() { "." } else { folder };
 
-        let priv_key_pem = self
-            .priv_key
-            .to_pkcs8_encrypted_pem(&mut rand::thread_rng(), priv_key_pass, LineEnding::LF)
-            .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
+        let priv_key_pem = self.priv_key.to_pkcs8_encrypted_pem(
+            &mut rand::thread_rng(),
+            priv_key_pass,
+            LineEnding::LF,
+        )?;
 
-        let pub_key_pem = self
-            .pub_key
-            .to_public_key_pem(LineEnding::LF)
-            .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
+        let pub_key_pem = self.pub_key.to_public_key_pem(LineEnding::LF)?;
 
         let priv_key_path = format!("{}/{}", folder, self.priv_key_name);
         fs::write(priv_key_path, priv_key_pem.as_bytes())?;
