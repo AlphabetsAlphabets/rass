@@ -1,14 +1,31 @@
 //! A few error conversions into a custom error type.
 
-use std::{io, fmt::Display};
+use std::{
+    fmt::{Debug, Display},
+    io,
+};
 
-use rsa::errors::Error as RsaError;
 use pkcs8::spki;
+use rsa::errors::Error as RsaError;
 
 pub enum KeyError {
     KeyNotFound(String),
     PrivateKeyDecryptionFailed(String),
     PemDecryptionFailed(String),
+}
+
+impl Debug for KeyError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use KeyError::*;
+
+        let msg = match self {
+            KeyNotFound(msg) => format!("Key not found: {msg}"),
+            PrivateKeyDecryptionFailed(msg) => format!("Key decryption failed: {msg}"),
+            PemDecryptionFailed(msg) => format!("Pem decryption failed: {msg}"),
+        };
+
+        write!(f, "{}", msg)
+    }
 }
 
 impl Display for KeyError {
