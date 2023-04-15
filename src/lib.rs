@@ -21,7 +21,7 @@
 
 use std::fs;
 
-mod errors;
+pub mod errors;
 
 use errors::KeyError;
 use pkcs8::{DecodePrivateKey, DecodePublicKey, EncodePrivateKey, EncodePublicKey, LineEnding};

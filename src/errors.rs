@@ -2,7 +2,7 @@
 
 use std::{
     fmt::{Debug, Display},
-    io,
+    io, env,
 };
 
 use pkcs8::spki;
@@ -19,6 +19,7 @@ impl Debug for KeyError {
         use KeyError::*;
 
         let msg = match self {
+            // Find out the directory the user passed in and the current directory.
             KeyNotFound(msg) => format!("Key not found: {msg}"),
             PrivateKeyDecryptionFailed(msg) => format!("Key decryption failed: {msg}"),
             PemDecryptionFailed(msg) => format!("Pem decryption failed: {msg}"),
@@ -44,7 +45,11 @@ impl Display for KeyError {
 
 impl From<io::Error> for KeyError {
     fn from(value: io::Error) -> Self {
-        Self::KeyNotFound(value.to_string())
+        let current_dir = env::current_dir().unwrap();
+        let current_dir = current_dir.to_str().unwrap();
+        let msg = format!("\n{}. You ran 'cargo run' in {}", value.to_string(), current_dir);
+
+        Self::KeyNotFound(msg)
     }
 }
 
