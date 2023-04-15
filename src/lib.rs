@@ -4,24 +4,26 @@
 //!
 //! # Usage
 //! ## Saving key pairs
-//! ```
+//! ```ignore
 //! // The values passed in will be the file names of the private and public keys.
 //! let keys = Keys::new("priv", "pub");
 //! // Saves the key pairs to a folder in the cwd called keys and encrypts the private key with a
 //! // password
-//! keys.write_to_disk("password", "keys");
+//! keys.write_to_disk("password", "path/where/keys/are/saved");
 //! ```
 //!
 //! ## Using an existing key pair
-//! ```
-//! let keys = Keys::retrieve_keys("keys/priv", "password", "keys/pub")?;
+//! ```ignore
+//! let keys = Keys::retrieve_keys("path/to/private/key", "password", "path/to/public/key")?;
 //! let ciphertext = keys.seal(b"hi")?;
 //! let plaintext = keys.unseal(ciphertext)?;
 //! ```
 
-use std::fs;
+pub mod errors;
 
-mod errors;
+mod test;
+
+use std::fs;
 
 use errors::KeyError;
 use pkcs8::{DecodePrivateKey, DecodePublicKey, EncodePrivateKey, EncodePublicKey, LineEnding};
