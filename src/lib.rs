@@ -19,11 +19,10 @@
 //! let plaintext = keys.unseal(ciphertext)?;
 //! ```
 
-pub mod errors;
-
-mod test;
-
 use std::fs;
+
+pub mod errors;
+mod test;
 
 use errors::KeyError;
 use pkcs8::{DecodePrivateKey, DecodePublicKey, EncodePrivateKey, EncodePublicKey, LineEnding};
