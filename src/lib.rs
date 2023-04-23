@@ -31,9 +31,9 @@ use rsa::{errors::Result as RsaResult, Pkcs1v15Encrypt, PublicKey, RsaPrivateKey
 /// Contains the key pairs and their names. This struct is to use the key pairs and to retrieve
 /// them. It can also be used to create new key pairs.
 pub struct Keys<'names> {
-    priv_key: RsaPrivateKey,
+    priv_key: Option<RsaPrivateKey>,
     priv_key_name: &'names str,
-    pub_key: RsaPublicKey,
+    pub_key: Option<RsaPublicKey>,
     pub_key_name: &'names str,
 }
 
@@ -50,14 +50,18 @@ impl<'names> Keys<'names> {
         let pub_key = RsaPublicKey::from(&priv_key);
 
         Self {
-            priv_key,
+            priv_key: Some(priv_key),
             priv_key_name,
-            pub_key,
+            pub_key: Some(pub_key),
             pub_key_name,
         }
     }
 
-    /// Will read the PEM encoded keys and return `Self`.
+    /// Will read the PEM encoded public and private keys and return `Self`.
+    /// If you only want a specific key look at their respective function.
+    /// - `retrieve_private_key`
+    /// - `retrieve_public_key`
+    ///
     /// # Parameters
     /// - `priv_key`: Path to private key file.
     /// - `password`: The password used to encrypt the private key.
@@ -79,10 +83,22 @@ impl<'names> Keys<'names> {
         let pub_key = RsaPublicKey::from_public_key_pem(&pem)?;
 
         Ok(Self {
-            priv_key,
+            priv_key: Some(priv_key),
             priv_key_name: priv_key_path,
-            pub_key,
+            pub_key: Some(pub_key),
             pub_key_name: pub_key_path,
+        })
+    }
+
+    pub fn retrieve_private_key(priv_key_path: &'names str, password: &str) -> Result<Self, KeyError> {
+        let pem = fs::read_to_string(priv_key_path)?;
+        let private_key = RsaPrivateKey::from_pkcs8_encrypted_pem(&pem, password)?;
+
+        Ok(Self {
+            priv_key: Some(private_key),
+            priv_key_name: priv_key_path,
+            pub_key: None,
+            pub_key_name: ""
         })
     }
 }
@@ -96,13 +112,13 @@ impl Keys<'_> {
     pub fn write_to_disk(&self, priv_key_pass: &str, folder: &str) -> Result<(), KeyError> {
         let folder = if folder.is_empty() { "." } else { folder };
 
-        let priv_key_pem = self.priv_key.to_pkcs8_encrypted_pem(
+        let priv_key_pem = self.priv_key.unwrap().to_pkcs8_encrypted_pem(
             &mut rand::thread_rng(),
             priv_key_pass,
             LineEnding::LF,
         )?;
 
-        let pub_key_pem = self.pub_key.to_public_key_pem(LineEnding::LF)?;
+        let pub_key_pem = self.pub_key.unwrap().to_public_key_pem(LineEnding::LF)?;
 
         let priv_key_path = format!("{}/{}", folder, self.priv_key_name);
         fs::write(priv_key_path, priv_key_pem.as_bytes())?;
@@ -115,10 +131,10 @@ impl Keys<'_> {
 
     pub fn seal(&self, plaintext: &[u8]) -> RsaResult<Vec<u8>> {
         let mut rng = rand::thread_rng();
-        self.pub_key.encrypt(&mut rng, Pkcs1v15Encrypt, plaintext)
+        self.pub_key.unwrap().encrypt(&mut rng, Pkcs1v15Encrypt, plaintext)
     }
 
     pub fn unseal(&self, ciphertext: &[u8]) -> RsaResult<Vec<u8>> {
-        self.priv_key.decrypt(Pkcs1v15Encrypt, ciphertext)
+        self.priv_key.unwrap().decrypt(Pkcs1v15Encrypt, ciphertext)
     }
 }
