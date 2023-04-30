@@ -3,4 +3,7 @@ A simple backend for creating and using RSA key pairs using the [rsa](https://gi
 
 This is meant to be plug and play and I plan to plug this in as a backend for other ideas I have in mind. This is also my **first time** doing anything crytography related and as such the choices I make may not be the best. Feel free to submit a PR or issue for any ideas or improvements you have.
 
-For documentation please run `cargo doc --open` as the documentation in `docs.rs` is outdated. I have no idea why it isn't matched with the release version in `crates.io`. Sorry for the inconvenience.
+# Usage
+A crate that uses the already well established [rsa](https://docs.rs/rsa/0.8.2/rsa/) and
+[pkcs8](https://docs.rs/pkcs8/0.10.2/pkcs8/) crates to provide a simple plug
+and play experience.
