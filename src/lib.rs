@@ -91,7 +91,7 @@ impl<'names> Keys<'names> {
         priv_key_path: &'names str,
         password: &str,
         pub_key_path: &'names str,
-    ) -> AnyResult<Self> {
+    ) -> Result<Self, KeyError> {
         // Get *encrypted* private key first
         let mut pem = fs::read_to_string(priv_key_path)?;
 
@@ -111,7 +111,7 @@ impl<'names> Keys<'names> {
         })
     }
 
-    pub fn retrieve_private_key(priv_key_path: &'names str, password: &str) -> AnyResult<Self> {
+    pub fn retrieve_private_key(priv_key_path: &'names str, password: &str) -> Result<Self, KeyError> {
         let pem = fs::read_to_string(priv_key_path)?;
         let private_key = RsaPrivateKey::from_pkcs8_encrypted_pem(&pem, password)?;
 
@@ -130,7 +130,7 @@ impl Keys<'_> {
     /// # Parameters
     /// - `priv_key_pass`: The password used to encrypt the private key.
     /// - `folder`: The folder to write the keys to. If left empty will default to cwd.
-    pub fn write_to_disk(&self, priv_key_pass: &str, folder: &str) -> AnyResult<()> {
+    pub fn write_to_disk(&self, priv_key_pass: &str, folder: &str) -> Result<(), KeyError> {
         let folder = if folder.is_empty() { "." } else { folder };
 
         let priv_key_pem = &self
@@ -154,20 +154,28 @@ impl Keys<'_> {
         Ok(())
     }
 
-    pub fn seal(&self, plaintext: &[u8]) -> AnyResult<Vec<u8>> {
+    /// Converts a plaintext into a digest.
+    /// # Parameters
+    /// - `plaintext`: A slice of u8 representing the message to encrypt.
+    pub fn seal(&self, plaintext: &[u8]) -> Result<Vec<u8>, KeyError> {
         let mut rng = rand::thread_rng();
-        self.pub_key
+        let digest = self.pub_key
             .clone()
             .ok_or(KeyError::UnableToUnpackKey)?
-            .encrypt(&mut rng, Pkcs1v15Encrypt, plaintext)
-            .context("Unable to encrypt plaintext with public key, you should take a look at it.")
+            .encrypt(&mut rng, Pkcs1v15Encrypt, plaintext)?;
+
+        Ok(digest)
     }
 
-    pub fn unseal(&self, ciphertext: &[u8]) -> AnyResult<Vec<u8>> {
-        self.priv_key
+    /// Decrypts the ciphertext passed in.
+    /// # Parameters
+    /// - `ciphertext`: A slice of u8 representing the ciphertext to decrypt.
+    pub fn unseal(&self, ciphertext: &[u8]) -> Result<Vec<u8>, KeyError> {
+        let plaintext = self.priv_key
             .clone()
             .ok_or(KeyError::UnableToUnpackKey)?
-            .decrypt(Pkcs1v15Encrypt, ciphertext)
-            .context("Unable to decrypt ciphertext with private key, you should take a look at it.")
+            .decrypt(Pkcs1v15Encrypt, ciphertext)?;
+
+        Ok(plaintext)
     }
 }
