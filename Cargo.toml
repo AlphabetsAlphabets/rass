@@ -17,7 +17,7 @@ path = "src/lib.rs"
 
 [[bin]]
 name = "rassfi"
-path = "rassfi/main.rs"
+path = "rassfi/src/main.rs"
 
 [dependencies]
 anyhow = "1.0.70"
